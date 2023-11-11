@@ -50,9 +50,7 @@ class Signal1D(Signal):
 
     def __radd__(self, other):
 
-        if not _utl.isscalar(other):
-            return NotImplemented
-        return self.__add__(other)
+        return NotImplemented if not _utl.isscalar(other) else self.__add__(other)
 
     def __sub__(self, other):
 
@@ -65,9 +63,7 @@ class Signal1D(Signal):
 
     def __rsub__(self, other):
 
-        if not _utl.isscalar(other):
-            return NotImplemented
-        return self.__sub__(other)
+        return NotImplemented if not _utl.isscalar(other) else self.__sub__(other)
 
     def __mul__(self, other):
 
@@ -80,9 +76,7 @@ class Signal1D(Signal):
 
     def __rmul__(self, other):
 
-        if not _utl.isscalar(other):
-            return NotImplemented
-        return self.__mul__(other)
+        return NotImplemented if not _utl.isscalar(other) else self.__mul__(other)
 
     def __truediv__(self, other):
 
@@ -149,13 +143,9 @@ class Signal1D(Signal):
     def spectrum(self, stype=Spectrum.POWER, scale=Spectrum.LINEAR):
 
         if stype not in Spectrum.TYPES:
-            raise ValueError(
-                "Invalid spectrum type (%s)" % stype
-            )
+            raise ValueError(f"Invalid spectrum type ({stype})")
         if scale not in Spectrum.SCALES:
-            raise ValueError(
-                "Invalid scale type (%s)" % scale
-            )
+            raise ValueError(f"Invalid scale type ({scale})")
 
         spec = Spectrum1D(self, scale=scale)
         spec = getattr(spec, stype)
@@ -172,9 +162,7 @@ class Signal1D(Signal):
             return Signal1D()
 
         if min(p) < 0:
-            raise ValueError(
-                "Negative padding values in {}".format(p)
-            )
+            raise ValueError(f"Negative padding values in {p}")
 
         pads = sum(p)
         dim1 = len(self._Y) + pads
@@ -204,9 +192,7 @@ class Signal1D(Signal):
             return Signal1D()
 
         if min(crange) < 0:
-            raise ValueError(
-                "Negative values in clipping range {}".format(crange)
-            )
+            raise ValueError(f"Negative values in clipping range {crange}")
 
         Yc = _mtx.vec_subvec(self._Y, crange)
         Xc = _mtx.vec_subvec(self._X, crange)
@@ -367,9 +353,7 @@ class Signal2D(Signal):
 
     def __radd__(self, other):
 
-        if not _utl.isscalar(other):
-            return NotImplemented
-        return self.__add__(other)
+        return NotImplemented if not _utl.isscalar(other) else self.__add__(other)
 
     def __sub__(self, other):
 
@@ -382,9 +366,7 @@ class Signal2D(Signal):
 
     def __rsub__(self, other):
 
-        if not _utl.isscalar(other):
-            return NotImplemented
-        return self.__sub__(other)
+        return NotImplemented if not _utl.isscalar(other) else self.__sub__(other)
 
     def __mul__(self, other):
 
@@ -397,9 +379,7 @@ class Signal2D(Signal):
 
     def __rmul__(self, other):
 
-        if not _utl.isscalar(other):
-            return NotImplemented
-        return self.__mul__(other)
+        return NotImplemented if not _utl.isscalar(other) else self.__mul__(other)
 
     def __truediv__(self, other):
 
@@ -428,9 +408,7 @@ class Signal2D(Signal):
 
     @property
     def dim(self):
-        if self.is_empty():
-            return 0, 0
-        return len(self._Y), len(self._Y[0])
+        return (0, 0) if self.is_empty() else (len(self._Y), len(self._Y[0]))
 
     @property
     def plot(self):
@@ -476,13 +454,9 @@ class Signal2D(Signal):
     def spectrum(self, stype=Spectrum.POWER, scale=Spectrum.LINEAR):
 
         if stype not in Spectrum.TYPES:
-            raise ValueError(
-                "Invalid spectrum type (%s)" % stype
-            )
+            raise ValueError(f"Invalid spectrum type ({stype})")
         if scale not in Spectrum.SCALES:
-            raise ValueError(
-                "Invalid scale type (%s)" % scale
-            )
+            raise ValueError(f"Invalid scale type ({scale})")
 
         spec = Spectrum2D(self, scale=scale)
         spec = getattr(spec, stype)
@@ -522,9 +496,7 @@ class Signal2D(Signal):
     def clip(self, crange):
 
         if min(crange) < 0:
-            raise ValueError(
-                "Negative values in clipping ranges {}".format(crange)
-            )
+            raise ValueError(f"Negative values in clipping ranges {crange}")
 
         Yc = _mtx.mat_submat(self._Y, crange)
         Xc = _mtx.mat_submat(self._X, crange)
@@ -539,9 +511,7 @@ class Signal2D(Signal):
     def flip(self, dim=None):
 
         if dim and (min(dim) < 1 or max(dim)) > 2:
-            raise ValueError(
-                "Dimension values must be in [1,2] -> {}".format(dim)
-            )
+            raise ValueError(f"Dimension values must be in [1,2] -> {dim}")
 
         # Flip everything if nothing is specified
         if not dim:

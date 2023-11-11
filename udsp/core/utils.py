@@ -227,7 +227,7 @@ def rmin(a, b):
 
     """
     # seems to be much faster than the built-in
-    return a if a < b else b
+    return min(a, b)
 
 
 def rmax(a, b):
@@ -245,7 +245,7 @@ def rmax(a, b):
 
     """
     # seems to be much faster than the built-in
-    return a if a > b else b
+    return max(a, b)
 
 
 def get_min_max_f(array):
@@ -387,6 +387,4 @@ def isscalar(val):
     bool
 
     """
-    return (isinstance(val, int) or
-            isinstance(val, float) or
-            isinstance(val, complex))
+    return isinstance(val, (int, float, complex))

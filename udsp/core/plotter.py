@@ -204,9 +204,7 @@ if _HAS_MATPLOTLIB:
                         continue
 
                     if self._signals[i][j].is_empty():
-                        raise ValueError(
-                            "No signal (%s)" % self._signals[i][j].name
-                        )
+                        raise ValueError(f"No signal ({self._signals[i][j].name})")
                     nplot = i * ncols + j + 1
 
                     # default plot attributes
@@ -318,9 +316,7 @@ if _HAS_MATPLOTLIB:
                         continue
 
                     if self._signals[i][j].is_empty():
-                        raise ValueError(
-                            "No signal (%s)" % self._signals[i][j].name
-                        )
+                        raise ValueError(f"No signal ({self._signals[i][j].name})")
                     nplot = i * ncols + j + 1
 
                     # default plot attributes
@@ -407,9 +403,7 @@ if _HAS_MATPLOTLIB:
                         continue
 
                     if self._signals[i][j].is_empty():
-                        raise ValueError(
-                            "No signal (%s)" % self._signals[i][j].name
-                        )
+                        raise ValueError(f"No signal ({self._signals[i][j].name})")
                     nplot = i * ncols + j + 1
 
                     # default plot attributes

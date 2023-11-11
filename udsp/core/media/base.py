@@ -38,15 +38,7 @@ class Metadata(object):
         self.resolution = resolution
 
     def __str__(self):
-        return ("\nsize:       {}\n"
-                "channels:   {}\n"
-                "bps:        {}\n"
-                "resolution: {}\n"
-                .format(
-                 self.size,
-                 self.channels,
-                 self.bps,
-                 self.resolution))
+        return f"\nsize:       {self.size}\nchannels:   {self.channels}\nbps:        {self.bps}\nresolution: {self.resolution}\n"
 
     def __repr__(self):
         return ("{{'size': {}, "
@@ -317,11 +309,10 @@ class MediaObject(object):
             raise TypeError(
                 "This method can't be called from the base class"
             )
-        print("\nSupported {} formats"
-              "\n-----------------------".format(cls._mediatype))
+        print(f"\nSupported {cls._mediatype} formats\n-----------------------")
         if len(cls._codecs.get_formats()):
             for fmt, info in cls._codecs:
-                print("{} - {}".format(fmt, info["description"]))
+                print(f'{fmt} - {info["description"]}')
         else:
             print("No codecs found")
         print("")
@@ -373,6 +364,5 @@ class MediaObject(object):
         try:
             codec = cls._codecs[ext]
         except KeyError:
-            raise RuntimeError("Unsupported {} format: {}"
-                               .format(cls._mediatype, ext))
+            raise RuntimeError(f"Unsupported {cls._mediatype} format: {ext}")
         return codec

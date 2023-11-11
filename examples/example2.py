@@ -3,6 +3,7 @@ uDSP - Miscellaneous examples
 
 """
 
+
 from udsp.signal.builtin import (Sinewave1D, Noise1D, Gaussian1D,
                                  AudioChannel, ImageChannel)
 
@@ -29,7 +30,7 @@ signal = (Gaussian1D(u=1.5, s=0.3, **sparams) +
 nsignal = Signal1D([0] * len(signal), **sparams)
 
 snr = []
-for i in range(NITER):
+for _ in range(NITER):
     gnoise = Noise1D(pdf="normal", **sparams)
     nsignal = (nsignal + (signal + 0.5 * gnoise) / NITER)
     snr.append(nsignal.mean() / nsignal.stddev())
@@ -82,7 +83,7 @@ lam = sum(notes)
 # Create an 8-bit integer audio channel
 lam8 = AudioChannel(round(lam.normalize(0, 255) * vol), bps=8)
 # Save to file
-AudioChannel.to_file(OPATH + "lam.wav", lam8)
+AudioChannel.to_file(f"{OPATH}lam.wav", lam8)
 
 
 # This example loads a colour (RGB) image and increases
@@ -90,10 +91,10 @@ AudioChannel.to_file(OPATH + "lam.wav", lam8)
 
 lum = 0.5
 # Load the image's colour channels
-image = ImageChannel.from_file(IPATH + "cimage.png")
+image = ImageChannel.from_file(f"{IPATH}cimage.png")
 # bimage = list(map(operator.mul, image, [lum] * len(image)))
 # Scale the intensity values
 bimage = [round(i * lum) for i in image]
 # Save to a PNG file
-ImageChannel.to_file(OPATH + "image_out.png", bimage)
+ImageChannel.to_file(f"{OPATH}image_out.png", bimage)
 

@@ -75,8 +75,7 @@ class WAVCodec(MediaCodec):
 
         def pack24(b):
             for i in range(0, len(b), 4):
-                for n in b[i:i + 3]:
-                    yield n
+                yield from b[i:i + 3]
 
         while nframes > 0:
             bdata = data[rsamples: rsamples + bsamples]

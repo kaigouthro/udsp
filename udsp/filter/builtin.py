@@ -188,10 +188,7 @@ class LoGFilter1D(ConvFilter1D):
         sign_maxN = 1 if maxN == A else -1
 
         for i, hi in enumerate(h):
-            if sign(hi) == sign_maxN:
-                ki = (1 - 1 / maxN * maxC)
-            else:
-                ki = (1 + 1 / minN * minC)
+            ki = (1 - 1 / maxN * maxC) if sign(hi) == sign_maxN else (1 + 1 / minN * minC)
             h[i] = hi * ki
 
         super().__init__(h, **kwargs)
@@ -431,10 +428,11 @@ class LoGFilter2D(ConvFilter2D):
 
         for i, row in enumerate(h):
             for j, hij in enumerate(row):
-                if sign(hij) == sign_maxN:
-                    kij = (1 - 1 / maxN * maxC)
-                else:
-                    kij = (1 + 1 / minN * minC)
+                kij = (
+                    (1 - 1 / maxN * maxC)
+                    if sign(hij) == sign_maxN
+                    else (1 + 1 / minN * minC)
+                )
                 h[i][j] = hij * kij
 
         super().__init__(h, **kwargs)

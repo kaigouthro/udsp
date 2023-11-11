@@ -273,10 +273,7 @@ class AudioChannel(Builtin1D):
     def __init__(self, data, bps=16, cid=0, **kwargs):
 
         super().__init__(**kwargs)
-        if isinstance(data, Signal):
-            self._data = data.get()
-        else:
-            self._data = data
+        self._data = data.get() if isinstance(data, Signal) else data
         self._id = cid
         self._bps = bps
         if isinstance(data, Signal):
@@ -306,11 +303,7 @@ class AudioChannel(Builtin1D):
         """
         audio = _media.Audio.from_file(filename)
         try:
-            if not mono:
-                data = audio.load()
-            else:
-                data = cls._to_mono(audio.load())
-
+            data = audio.load() if not mono else cls._to_mono(audio.load())
             channels = []
             for c, _ in enumerate(data):
                 channel = cls(
@@ -606,10 +599,7 @@ class ImageChannel(Builtin2D):
     def __init__(self, data, bps=8, cid=0, **kwargs):
 
         super().__init__(**kwargs)
-        if isinstance(data, Signal):
-            self._data = data.get()
-        else:
-            self._data = data
+        self._data = data.get() if isinstance(data, Signal) else data
         self._id = cid
         self._bps = bps
         if isinstance(data, Signal):
@@ -639,11 +629,7 @@ class ImageChannel(Builtin2D):
         """
         image = _media.Image.from_file(filename)
         try:
-            if not mono:
-                data = image.load()
-            else:
-                data = cls._to_mono(image.load())
-
+            data = image.load() if not mono else cls._to_mono(image.load())
             channels = []
             for c, _ in enumerate(data):
                 channel = cls(
@@ -732,10 +718,9 @@ class ImageChannel(Builtin2D):
 
         """
         # Image is L or LA (grayscale)
-        if len(channels) in (1, 2):
+        if len(channels) in {1, 2}:
             return [channels[0]]
-        # Image is RGB or RGBA (colour)
-        elif len(channels) in (3, 4):
+        elif len(channels) in {3, 4}:
             cplanes = (channels if len(channels) == 3
                        else channels[:3])
             # Convert to grayscale

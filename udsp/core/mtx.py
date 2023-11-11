@@ -90,10 +90,7 @@ def mat_copy(a):
         A copy of the given matrix
 
     """
-    if mat_is_void(a):
-        return a
-
-    return [row.copy() for row in a]
+    return a if mat_is_void(a) else [row.copy() for row in a]
 
 
 def mat_is_void(a):
@@ -133,9 +130,7 @@ def mat_dim(a):
         A 2-tuple (rows, cols)
 
     """
-    if mat_is_void(a):
-        return ()
-    return len(a), len(a[0])
+    return () if mat_is_void(a) else (len(a), len(a[0]))
 
 
 def mat_dims_equal(a, b, full_check=False):
@@ -713,7 +708,7 @@ def mat_flatten(a, mode=(1, False)):
     """
     if mat_is_void(a):
         return []
-    if len(mode) < 2 or not mode[0] in (1, 2):
+    if len(mode) < 2 or mode[0] not in (1, 2):
         raise ValueError("Invalid mode. Must be a 2-tuple "
                          "in the form ({1,2}, {True,False})")
 
@@ -762,7 +757,7 @@ def mat_unflatten(v, size, mode=(1, False)):
         return []
     if not size or len(size) < 2 or min(size) <= 0:
         raise ValueError("Invalid size. Must be a 2-tuple of int > 0")
-    if not mode or len(mode) < 2 or not mode[0] in (1, 2):
+    if not mode or len(mode) < 2 or mode[0] not in (1, 2):
         raise ValueError("Invalid mode. Must be a 2-tuple "
                          "in the form ({1,2}, {True,False})")
     if len(v) / size[1] != size[0]:
@@ -1008,7 +1003,7 @@ def mat_to(newtype, a):
     if type(a[0][0]) is not newtype:
         return [[newtype(e) for e in row] for row in a]
     else:
-        return [[e for e in row] for row in a]
+        return [list(row) for row in a]
 
 
 def mat_bin(m, nbins, f, init=0):
@@ -1165,8 +1160,7 @@ def mat_toeplitz_2d(h, x):
         for row in range(BTrows):
             i = row - col
             offset = (row * Trows, col * Tcols)
-            block = Tlist[i]
-            if block:
+            if block := Tlist[i]:
                 mat_submat_copy(DBTM, block, offset)
     return DBTM
 
@@ -1199,7 +1193,7 @@ def vec_new(elems, init=None):
     if callable(init):
         return [init(n) for n in range(elems)]
     elif _utl.isiterable(init):
-        return [i for i in init]
+        return list(init)
     else:
         return [init or 0] * elems
 
@@ -1280,13 +1274,12 @@ def vec_add(a, b):
         A vector sum of a and b
 
     """
-    if type(b) is list:
-        assert len(a) == len(b)
-        # return [a[n] + b[n] for n in range(len(a))]
-        return [*map(lambda ai, bi: ai + bi, a, b)]
-    else:
+    if type(b) is not list:
         # return [a[n] + b for n in range(len(a))]
         return [*map(lambda ai: ai + b, a)]
+    assert len(a) == len(b)
+    # return [a[n] + b[n] for n in range(len(a))]
+    return [*map(lambda ai, bi: ai + bi, a, b)]
 
 
 def vec_sub(a, b):
@@ -1306,13 +1299,12 @@ def vec_sub(a, b):
         A vector difference of a and b
 
     """
-    if type(b) is list:
-        assert len(a) == len(b)
-        # return [a[n] - b[n] for n in range(len(a))]
-        return [*map(lambda ai, bi: ai - bi, a, b)]
-    else:
+    if type(b) is not list:
         # return [a[n] - b for n in range(len(a))]
         return [*map(lambda ai: ai - b, a)]
+    assert len(a) == len(b)
+    # return [a[n] - b[n] for n in range(len(a))]
+    return [*map(lambda ai, bi: ai - bi, a, b)]
 
 
 def vec_mul(a, b):
@@ -1332,13 +1324,12 @@ def vec_mul(a, b):
         A vector product of a and b
 
     """
-    if type(b) is list:
-        assert len(a) == len(b)
-        # return [a[n] * b[n] for n in range(len(a))]
-        return [*map(lambda ai, bi: ai * bi, a, b)]
-    else:
+    if type(b) is not list:
         # return [a[n] * b for n in range(len(a))]
         return [*map(lambda ai: ai * b, a)]
+    assert len(a) == len(b)
+    # return [a[n] * b[n] for n in range(len(a))]
+    return [*map(lambda ai, bi: ai * bi, a, b)]
 
 
 def vec_div(a, b):
@@ -1358,13 +1349,12 @@ def vec_div(a, b):
         A vector quotient of a and b
 
     """
-    if type(b) is list:
-        assert len(a) == len(b)
-        # return [a[n] / b[n] for n in range(len(a))]
-        return [*map(lambda ai, bi: ai / bi, a, b)]
-    else:
+    if type(b) is not list:
         # return [a[n] / b for n in range(len(a))]
         return [*map(lambda ai: ai / b, a)]
+    assert len(a) == len(b)
+    # return [a[n] / b[n] for n in range(len(a))]
+    return [*map(lambda ai, bi: ai / bi, a, b)]
 
 
 def vec_pow(a, p):
@@ -1780,10 +1770,7 @@ def vec_to(newtype, v):
         If the vector is already of the given type, a copy is returned.
 
     """
-    if type(v[0]) is not newtype:
-        return [newtype(e) for e in v]
-    else:
-        return [e for e in v]
+    return [newtype(e) for e in v] if type(v[0]) is not newtype else list(v)
 
 
 def vec_bin(v, nbins, f, init=0):
@@ -1839,7 +1826,7 @@ def vec_round(v, mode):
     if vec_is_void(v):
         return v
     if mode not in {"nearest", "up", "down"}:
-        raise ValueError("Invalid rounding mode: %s" % mode)
+        raise ValueError(f"Invalid rounding mode: {mode}")
 
     fround = _utl.get_round_f(v, mode)
 
@@ -1921,6 +1908,5 @@ def conv2d_mat(h, x, warning=True):
     toep = mat_toeplitz_2d(h, x)
     xvec = mat_flatten(x, (1, True))
     yvec = mat_product(toep, xvec)
-    y = mat_unflatten(yvec, (Ny, My), (1, True))
-    return y
+    return mat_unflatten(yvec, (Ny, My), (1, True))
 

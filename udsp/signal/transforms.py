@@ -211,10 +211,7 @@ class FourierTransform(Transform):
         if n == 0:
             return []
 
-        if _utl.is_pow2(n):
-            return self._fft(x, d)
-        else:
-            return self._gfft(x, d)
+        return self._fft(x, d) if _utl.is_pow2(n) else self._gfft(x, d)
 
     def _fft2d(self, x, d=1):
         """
@@ -299,7 +296,7 @@ class FourierTransform(Transform):
         phi = -d * 1j * _cm.pi / n
         n2 = 2 * n
 
-        xx = [xi for xi in x] + [0] * (nn - n)
+        xx = list(x) + [0] * (nn - n)
         w, wc = [0] * nn, [0] * nn
         k2 = 0
 
@@ -455,24 +452,19 @@ class Transforms(object):
 
         """
         if signal.domain not in Transforms.DOMAINS:
-            raise ValueError(
-                "Invalid signal domain: %s" % signal.domain
-            )
+            raise ValueError(f"Invalid signal domain: {signal.domain}")
 
         if to_domain not in Transforms.DOMAINS:
-            raise ValueError(
-                "Invalid 'to' domain: %s" % to_domain
-            )
+            raise ValueError(f"Invalid 'to' domain: {to_domain}")
         # TODO: the following is a no-op, or should we raise something?
         if to_domain == signal.domain:
-            print("NOTICE: signal %s is already in the %s domain" %
-                  (signal.name, to_domain))
+            print(f"NOTICE: signal {signal.name} is already in the {to_domain} domain")
             return signal
-            # raise ValueError(
-            #     "Signal already in %s domain" % to_domain
-            # )
+                # raise ValueError(
+                #     "Signal already in %s domain" % to_domain
+                # )
 
-        T = Transforms._MAPS[signal.domain + " -> " + to_domain]
+        T = Transforms._MAPS[f"{signal.domain} -> {to_domain}"]
         T._ndim = ndim
 
         tsignal = T.execute(signal)

@@ -3,6 +3,7 @@ uDSP - Basic signal operations
 
 """
 
+
 import math
 
 from udsp.signal.builtin import (Sinewave1D, Noise1D, Gaussian2D,
@@ -13,8 +14,8 @@ from udsp.signal.ndim import Signal1D, Signal2D
 
 IPATH = "examples/data/"
 OPATH = "examples/data/"
-AUDIOFILE = IPATH + "music.wav"
-IMAGEFILE = OPATH + "cimage.png"
+AUDIOFILE = f"{IPATH}music.wav"
+IMAGEFILE = f"{OPATH}cimage.png"
 
 
 # Signal creation
@@ -28,8 +29,7 @@ gnoise = Noise1D(pdf="normal", length=3, sfreq=80)
 
 # Create a custom 1D signal y(x)=x^3-4x+12 in [-3, 5]
 cust = Signal1D(
-    y=[x**3 - 4*x + 12 for x in range(-3, 5)],
-    x=[x for x in range(-3, 5)]
+    y=[x**3 - 4 * x + 12 for x in range(-3, 5)], x=list(range(-3, 5))
 )
 
 # Create a 2D Gaussian centered at (5, 5) with std of (2, 2)

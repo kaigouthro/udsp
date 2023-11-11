@@ -305,9 +305,7 @@ class Signal1DTestCase(unittest.TestCase):
                [1, 2, 3, 4, 5]]
         pad = [(1, 3), (2, 2), (0, 1), (1, 0), (0, 0)]
         padder = [1, 2, 3, 4, 5]
-        s = []
-        for p in pad:
-            s.append(signal.pad(p))
+        s = [signal.pad(p) for p in pad]
         for sig, res in zip(s, res):
             self.assertIsInstance(sig, Signal)
             self.assertListEqual(sig.get(), res)
@@ -323,9 +321,7 @@ class Signal1DTestCase(unittest.TestCase):
                [1, 2, 3, 4, 5, 3],
                [4, 1, 2, 3, 4, 5],
                [1, 2, 3, 4, 5]]
-        s = []
-        for p, pr in zip(pad, padder):
-            s.append(signal.pad(p, pr))
+        s = [signal.pad(p, pr) for p, pr in zip(pad, padder)]
         for sig, res in zip(s, res):
             self.assertListEqual(sig.get(), res)
 
@@ -890,9 +886,7 @@ class Signal2DTestCase(unittest.TestCase):
                (1, 0, 0, 1),
                (0, 0, 0, 0)]
         padder = [1, 2, 3, 4, 5]
-        s = []
-        for p in pad:
-            s.append(signal.pad(p))
+        s = [signal.pad(p) for p in pad]
         for sig, res in zip(s, res):
             self.assertIsInstance(sig, Signal)
             self.assertListEqual(sig.get(), res)
@@ -933,9 +927,7 @@ class Signal2DTestCase(unittest.TestCase):
              [4, 5, 6],
              [7, 8, 9]]
         ]
-        s = []
-        for p, pr in zip(pad, padder):
-            s.append(signal.pad(p, pr))
+        s = [signal.pad(p, pr) for p, pr in zip(pad, padder)]
         for sig, res in zip(s, res):
             self.assertListEqual(sig.get(), res)
 

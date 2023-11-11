@@ -227,23 +227,22 @@ def check_color(c, greyscale, which):
         except TypeError:
             c = (c,)
         if len(c) != 1:
-            raise ProtocolError("%s for greyscale must be 1-tuple" % which)
+            raise ProtocolError(f"{which} for greyscale must be 1-tuple")
         if not is_natural(c[0]):
-            raise ProtocolError(
-                "%s colour for greyscale must be integer" % which)
-    else:
-        if not (len(c) == 3 and
-                is_natural(c[0]) and
-                is_natural(c[1]) and
-                is_natural(c[2])):
-            raise ProtocolError(
-                "%s colour must be a triple of integers" % which)
+            raise ProtocolError(f"{which} colour for greyscale must be integer")
+    elif (
+        len(c) != 3
+        or not is_natural(c[0])
+        or not is_natural(c[1])
+        or not is_natural(c[2])
+    ):
+        raise ProtocolError(f"{which} colour must be a triple of integers")
     return c
 
 
 class Error(Exception):
     def __str__(self):
-        return self.__class__.__name__ + ': ' + ' '.join(self.args)
+        return f'{self.__class__.__name__}: ' + ' '.join(self.args)
 
 
 class FormatError(Error):
@@ -309,7 +308,7 @@ def rescale_rows(rows, rescale):
           for s in rescale]
 
     # Assume all target_bitdepths are the same
-    target_bitdepths = set(s[1] for s in rescale)
+    target_bitdepths = {s[1] for s in rescale}
     assert len(target_bitdepths) == 1
     (target_bitdepth, ) = target_bitdepths
     typecode = 'BH'[target_bitdepth > 8]
@@ -382,12 +381,10 @@ def make_palette_chunks(palette):
     t = bytearray()
 
     for x in palette:
-        p.extend(x[0:3])
+        p.extend(x[:3])
         if len(x) > 3:
             t.append(x[3])
-    if t:
-        return p, t
-    return p, None
+    return (p, t) if t else (p, None)
 
 
 def check_bitdepth_rescale(
@@ -527,7 +524,7 @@ class PNGReader:
                 % (ctype, length))
         checksum = self.file.read(4)
         if len(checksum) != 4:
-            raise ChunkError('Chunk %s too short for checksum.' % ctype)
+            raise ChunkError(f'Chunk {ctype} too short for checksum.')
         verify = zlib.crc32(ctype)
         verify = zlib.crc32(data, verify)
         # Whether the output from zlib.crc32 is signed or not varies
@@ -626,10 +623,7 @@ class PNGReader:
         # Interleaving writes to the output array randomly
         # (well, not quite), so the entire output array must be in memory.
         # Make a result array, and make it big enough.
-        if self.bitdepth > 8:
-            a = array('H', [0] * vpi)
-        else:
-            a = bytearray([0] * vpi)
+        a = array('H', [0] * vpi) if self.bitdepth > 8 else bytearray([0] * vpi)
         source_offset = 0
 
         for lines in adam7_generate(self.width, self.height):
@@ -660,7 +654,7 @@ class PNGReader:
                     skip = self.planes * xstep
                     for i in range(self.planes):
                         a[offset + i: end_offset: skip] = \
-                            flat[i:: self.planes]
+                                flat[i:: self.planes]
 
         return a
 
@@ -803,8 +797,7 @@ class PNGReader:
 
         ctype, data = self.chunk(lenient=lenient)
         method = '_process_' + ctype.decode('ascii')
-        m = getattr(self, method, None)
-        if m:
+        if m := getattr(self, method, None):
             m(data)
 
     def _process_IHDR(self, data):
@@ -890,11 +883,10 @@ class PNGReader:
         if self.colormap:
             if not self.plte:
                 warnings.warn("PLTE chunk is required before tRNS chunk.")
-            else:
-                if len(data) > len(self.plte) / 3:
-                    # Was warning, but promoted to Error as it
-                    # would otherwise cause pain later on.
-                    raise FormatError("tRNS chunk is too long.")
+            elif len(data) > len(self.plte) / 3:
+                # Was warning, but promoted to Error as it
+                # would otherwise cause pain later on.
+                raise FormatError("tRNS chunk is too long.")
         else:
             if self.alpha:
                 raise FormatError(
@@ -902,7 +894,7 @@ class PNGReader:
                     self.color_type)
             try:
                 self.transparent = \
-                    struct.unpack("!%dH" % self.color_planes, data)
+                        struct.unpack("!%dH" % self.color_planes, data)
             except struct.error:
                 raise FormatError("tRNS chunk has incorrect length.")
 
@@ -972,8 +964,8 @@ class PNGReader:
                 values = self._deinterlace(bs)
                 vpr = self.width * self.planes
                 for i in range(0, len(values), vpr):
-                    row = array(arraycode, values[i:i+vpr])
-                    yield row
+                    yield array(arraycode, values[i:i+vpr])
+
             rows = rows_from_interlace()
         else:
             rows = self._iter_bytes_to_values(self._iter_straight_packed(raw))
@@ -1259,7 +1251,7 @@ class PNGReader:
             return width, height, pixels, info
         typecode = 'BH'[info['bitdepth'] > 8]
         maxval = 2**info['bitdepth'] - 1
-        maxbuffer = struct.pack('=' + typecode, maxval) * 4 * width
+        maxbuffer = struct.pack(f'={typecode}', maxval) * 4 * width
 
         if info['bitdepth'] > 8:
             def newarray():
@@ -1359,15 +1351,13 @@ def is_natural(x):
 def undo_filter_sub(filter_unit, scanline, previous, result):
     """Undo sub filter."""
 
-    ai = 0
     # Loops starts at index fu.  Observe that the initial part
     # of the result is already filled in correctly with
     # scanline.
-    for i in range(filter_unit, len(result)):
+    for ai, i in enumerate(range(filter_unit, len(result))):
         x = scanline[i]
         a = result[ai]
         result[i] = (x + a) & 0xff
-        ai += 1
 
 
 def undo_filter_up(filter_unit, scanline, previous, result):
@@ -1385,10 +1375,7 @@ def undo_filter_average(filter_unit, scanline, previous, result):
     ai = -filter_unit
     for i in range(len(result)):
         x = scanline[i]
-        if ai < 0:
-            a = 0
-        else:
-            a = result[ai]
+        a = 0 if ai < 0 else result[ai]
         b = previous[i]
         result[i] = (x + ((a + b) >> 1)) & 0xff
         ai += 1
@@ -1423,7 +1410,7 @@ def undo_filter_paeth(filter_unit, scanline, previous, result):
 
 def convert_la_to_rgba(row, result):
     for i in range(3):
-        result[i::4] = row[0::2]
+        result[i::4] = row[::2]
     result[3::4] = row[1::2]
 
 
@@ -1900,19 +1887,13 @@ class PNGWriter:
 
         # http://www.w3.org/TR/PNG/#11tRNS
         if self.transparent is not None:
-            if self.greyscale:
-                fmt = "!1H"
-            else:
-                fmt = "!3H"
+            fmt = "!1H" if self.greyscale else "!3H"
             write_chunk(outfile, b'tRNS',
                         struct.pack(fmt, *self.transparent))
 
         # http://www.w3.org/TR/PNG/#11bKGD
         if self.background is not None:
-            if self.greyscale:
-                fmt = "!1H"
-            else:
-                fmt = "!3H"
+            fmt = "!1H" if self.greyscale else "!3H"
             write_chunk(outfile, b'bKGD',
                         struct.pack(fmt, *self.background))
 
@@ -1949,7 +1930,7 @@ class PNGWriter:
         # Values per row
         vpr = self.width * self.planes
         stop = 0
-        for y in range(self.height):
+        for _ in range(self.height):
             start = stop
             stop = start + vpr
             yield pixels[start:stop]
@@ -1986,13 +1967,13 @@ class PNGWriter:
                 # using the step in Python slices.
                 row = array(fmt)
                 # There's no easier way to set the length of an array
-                row.extend(pixels[0:reduced_row_len])
+                row.extend(pixels[:reduced_row_len])
                 offset = y * vpr + x * self.planes
                 end_offset = (y + 1) * vpr
                 skip = self.planes * xstep
                 for i in range(self.planes):
                     row[i::self.planes] = \
-                        pixels[offset + i: end_offset: skip]
+                            pixels[offset + i: end_offset: skip]
                 yield row
 
 
